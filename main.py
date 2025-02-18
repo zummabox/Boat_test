@@ -8,7 +8,6 @@ class RowBoat:
         self.speed = speed
         self.angle = 0
 
-
     def move_forward(self):
         radians = math.radians(self.angle)
         dx = math.cos(radians) * self.speed
@@ -100,30 +99,3 @@ if rower.stamina == 0:  # Если гребец устал, даём ему от
 
 rower.operate_oars(oars, boat)  # После отдыха продолжаем грести
 boat.move_forward()
-
-# boat = RowBoat()
-# oars = Oars()
-# rower = Rower(strength=3, stamina=10)
-#
-# while rower.stamina != 0:
-#     rower.operate_oars(oars)  # Гребец делает гребок
-#     time.sleep(1)
-# rower.operate_oars(oars)  # Гребец устал (stamina = 0)
-#
-# if rower.stamina == 0:  # Проверяем, что он действительно устал, и только потом даём отдых
-#     rower.rest()
-#
-# rower.operate_oars(oars)  # Теперь снова может грести!
-
-# boat.row_speed()
-# boat.move_forward()
-
-
-# boat.move_of_oars(left_oar=True, right_oar=False)  # Левое весло → вправо
-# boat.move_forward()
-#
-# boat.move_of_oars(left_oar=False, right_oar=True)  # Правое весло → влево
-# boat.move_forward()
-#
-# boat.move_of_oars(left_oar=True, right_oar=True)  # Оба весла → прямо
-# boat.move_forward()
