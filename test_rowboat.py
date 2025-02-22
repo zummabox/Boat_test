@@ -1,64 +1,88 @@
-import pytest
 import math
-from main import RowBoat, Oars, Rower
+from boat import RowBoat, Oars, Rower, BoatController
 
 
-def test_initial_state():
-    boat = RowBoat()
-    assert boat.coordinates == (0, 0)
-    assert boat.speed == 0
-    assert boat.angle == 0
+def test_rowboat_move_forward():
+    boat = RowBoat(coordinates=(0, 0), angle=0)
+    distance = 10
 
-def test_increase_speed():
-    boat = RowBoat()
-    boat.increase_speed(2)
-    assert boat.speed == 1
+    boat.move_forward(distance)
 
-def test_move_of_oars():
-    boat = RowBoat()
-    boat.move_of_oars(True, False)
-    assert boat.angle == 15
+    expected_coordinates = (10, 0)
+    assert math.isclose(boat.coordinates[0], expected_coordinates[0], rel_tol=1e-9)
+    assert math.isclose(boat.coordinates[1], expected_coordinates[1], rel_tol=1e-9)
 
-    boat.move_of_oars(False, True)
-    assert boat.angle == 0
+def test_rowboat_turn_left():
+    boat = RowBoat(angle=0)
+    degrees = 90
 
-    boat.move_of_oars(True, True)
-    assert boat.angle == 0
+    boat.turn_left(degrees)
 
+    expected_angle = -90
+    assert math.isclose(boat.angle, expected_angle, rel_tol=1e-9)
 
-def test_set_row_power():
-    oars = Oars()
-    oars.set_row_power(5)
-    assert oars.row_power == 5
+def test_rowboat_turn_right():
+    boat = RowBoat(angle=0)
+    degrees = 90
 
-def test_set_row_frequency():
-    oars = Oars()
-    oars.set_row_frequency(3)
-    assert oars.row_frequency == 3
+    boat.turn_right(degrees)
 
+    expected_angle = 90
+    assert math.isclose(boat.angle, expected_angle, rel_tol=1e-9)
 
-def test_operate_oars():
-    rower = Rower(strength=4, stamina=3)
-    oars = Oars()
-    boat = RowBoat()
+def test_oars_get_power():
+    oars = Oars(power=2)
 
-    rower.operate_oars(oars, boat)
+    power = oars.get_power()
 
-    assert oars.row_power == 4
-    assert boat.speed == 4 * 0.5
+    assert power == 2
 
-def test_reduce_stamina():
-    rower = Rower(stamina=2)
+def test_rower_row():
+    rower = Rower(strength=1, stamina=5)
+    oars = Oars(power=1)
+    boat = RowBoat(coordinates=(0, 0), angle=0)
+    target_x, target_y = 10, 0
 
-    rower.reduce_stamina()
-    assert rower.stamina == 1
+    rower.row(oars, boat, target_x, target_y)
 
-    rower.reduce_stamina()
-    assert rower.stamina == 0
-    assert rower.tired is True
+    assert math.isclose(boat.coordinates[0], 1, rel_tol=1e-9)
+    assert rower.stamina == 4
 
-def test_rest():
-    rower = Rower(stamina=0)
+def test_rower_rest():
+    rower = Rower(strength=1, stamina=0)
+
     rower.rest()
+
     assert rower.stamina == 10
-    assert rower.tired is False
+    assert not rower.is_tired()
+
+def test_boatcontroller_calculate_target_angle():
+    boat = RowBoat(coordinates=(0, 0), angle=0)
+    controller = BoatController(boat, Rower(), Oars())
+    target_x, target_y = 10, 0
+
+    target_angle = controller.calculate_target_angle(target_x, target_y)
+
+    assert math.isclose(target_angle, 0, rel_tol=1e-9)
+
+def test_boatcontroller_turn_towards_target():
+    boat = RowBoat(coordinates=(0, 0), angle=0)
+    controller = BoatController(boat, Rower(), Oars())
+    target_angle = 90
+
+    controller.turn_towards_target(target_angle)
+
+    assert math.isclose(boat.angle, 10, rel_tol=1e-9)
+
+def test_boatcontroller_move_to_target():
+    boat = RowBoat(coordinates=(0, 0), angle=0)
+    rower = Rower(strength=1, stamina=10)
+    oars = Oars(power=1)
+    controller = BoatController(boat, rower, oars)
+    target_x, target_y = 5, 0
+
+    controller.move_to_target(target_x, target_y)
+
+    assert math.isclose(boat.coordinates[0], 5, rel_tol=1e-9)
+    assert math.isclose(boat.coordinates[1], 0, rel_tol=1e-9)
+
